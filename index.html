@@ -29,14 +29,93 @@ const games=[
 ['🐍','Had','snake'],['♟️','Šachy','chess'],['⭕','Piškvorky','ttt'],['🏓','Pong','pong'],['🧠','Pexeso','memory'],['🧱','Arkanoid','arkanoid'],
 ['✊','Kámen, nůžky, papír','rps'],['🔢','Hádej číslo','guess'],['⚡','Test reakcí','reaction'],['👆','Klikací výzva','clicker'],['🔟','2048','2048'],['🐹','Plácni krtka','mole'],
 ['🎵','Simonova hra','simon'],['🔴','Čtyři v řadě','connect'],['💣','Miny','mines'],['🔤','Hádej slovo','word'],['⌨️','Rychlé psaní','typing'],['➗','Matematický kvíz','math'],
-['🟦','Vyhni se blokům','dodge'],['🎨','Najdi barvu','color'],['🧩','Posuvné puzzle','puzzle']
+['🟦','Vyhni se blokům','dodge'],['🎨','Najdi barvu','color'],['🧩','Posuvné puzzle','puzzle'],
+['🧮','Počítací sprint','extra22'],
+['🔍','Najdi rozdíl','extra23'],
+['🧠','Paměťová výzva','extra24'],
+['🎯','Tref cíl','extra25'],
+['🔠','Přesmyčky','extra26'],
+['🚦','Světelný signál','extra27'],
+['🔢','Seřaď čísla','extra28'],
+['🌍','Zeměpisný kvíz','extra29'],
+['🐾','Zvířecí kvíz','extra30'],
+['🧩','Logické hádanky','extra31'],
+['🎲','Šťastná kostka','extra32'],
+['🟢','Klikni na zelenou','extra33'],
+['🔡','Abecední závod','extra34'],
+['➕','Sčítací duel','extra35'],
+['➖','Odčítací duel','extra36'],
+['✖️','Násobilka','extra37'],
+['➗','Dělení','extra38'],
+['🧭','Směrník','extra39'],
+['🧊','Ledová cesta','extra40'],
+['🚀','Raketový start','extra41'],
+['🍎','Ovocný kvíz','extra42'],
+['⚽','Sportovní kvíz','extra43'],
+['🎮','Herní kvíz','extra44'],
+['📚','Vědomostní mix','extra45'],
+['🔔','Zvuková paměť','extra46'],
+['🧱','Stavitel věže','extra47'],
+['🪙','Sbírej mince','extra48'],
+['🛸','Uhybej UFO','extra49'],
+['🦖','Dinosauří kvíz','extra50'],
+['🌈','Barevná paměť','extra51'],
+['🕵️','Detektivní číslo','extra52'],
+['🔐','Tajný kód','extra53'],
+['🧮','Kolik zbývá?','extra54'],
+['📏','Odhad délky','extra55'],
+['⏱️','Stopky','extra56'],
+['🧠','Pamatuj pořadí','extra57'],
+['🎨','Barevný mix','extra58'],
+['🅰️','Chybějící písmeno','extra59'],
+['🔤','Slovní řetěz','extra60'],
+['📦','Najdi dvojici','extra61'],
+['🪄','Magické číslo','extra62'],
+['🌟','Počítání hvězd','extra63'],
+['🧩','Doplň vzor','extra64'],
+['🟦','Barevné dlaždice','extra65'],
+['🏁','Závod čísel','extra66'],
+['🐠','Mořský kvíz','extra67'],
+['🌳','Přírodní kvíz','extra68'],
+['🏰','Historický kvíz','extra69'],
+['🧪','Vědecký kvíz','extra70'],
+['🛰️','Vesmírný kvíz','extra71'],
+['🎯','Přesná trefa','extra72'],
+['🧠','Rychlá paměť','extra73'],
+['🔢','Číslo navíc','extra74'],
+['🔠','Slovní detektiv','extra75'],
+['🧮','Matematický mix','extra76'],
+['🚥','Reakční semafor','extra77'],
+['🟡','Najdi žlutou','extra78'],
+['🟣','Najdi fialovou','extra79'],
+['🔵','Najdi modrou','extra80'],
+['🟠','Najdi oranžovou','extra81'],
+['🧩','Mini sudoku','extra82'],
+['🔎','Hledej symbol','extra83'],
+['🎲','Hádej kostku','extra84'],
+['📈','Větší nebo menší','extra85'],
+['🔁','Opakuj sekvenci','extra86'],
+['🧺','Třídění ovoce','extra87'],
+['🚗','Dopravní kvíz','extra88'],
+['🎼','Hudební rytmus','extra89'],
+['🗺️','Najdi světadíl','extra90'],
+['🏆','Kvíz šampionů','extra91'],
+['🧠','Mozkový trénink','extra92'],
+['🎯','Klikací terč','extra93'],
+['🧮','Číselná pyramida','extra94'],
+['🔤','Písmenkový mix','extra95'],
+['🕒','Časová výzva','extra96'],
+['🧩','Poslední hádanka','extra97'],
+['🎉','Velké finále','extra98'],
+['🧠','Paměťový mistr','extra99'],
+['🏅','Závěrečná výzva','extra100']
 ];
 const menu=document.querySelector('#menu'),game=document.querySelector('#game'),stage=document.querySelector('#stage');
 games.forEach((g,i)=>{let b=document.createElement('button');b.className='tile';b.innerHTML=`<span>${g[0]}</span><b>${i+1}. ${g[1]}</b>`;b.onclick=()=>start(g[2],g[1]);menu.append(b)});
 let timer=null,raf=null,score=0;
 function clean(){clearInterval(timer);cancelAnimationFrame(raf);stage.innerHTML='';document.querySelector('#score').textContent='';}
 function home(){clean();game.style.display='none';menu.style.display='grid'}
-function start(id,name){clean();menu.style.display='none';game.style.display='block';document.querySelector('#title').textContent=name;({snake,chess,ttt,pong,memory,arkanoid,rps,guess,reaction,clicker,g2048,mole,simon,connect,mines,word,typing,math,dodge,color,puzzle}[id])()}
+function start(id,name){clean();menu.style.display='none';game.style.display='block';document.querySelector('#title').textContent=name;let fn=({snake,chess,ttt,pong,memory,arkanoid,rps,guess,reaction,clicker,g2048,mole,simon,connect,mines,word,typing,math,dodge,color,puzzle}[id]);if(fn)fn();else if(id.startsWith('extra'))extraGame(Number(id.slice(5)));}
 function setScore(s){document.querySelector('#score').textContent=s}
 function btn(txt,fn,cls=''){let b=document.createElement('button');b.textContent=txt;if(cls)b.className=cls;b.onclick=fn;return b}
 function row(...els){let d=document.createElement('div');d.className='row';els.forEach(e=>d.append(e));stage.append(d);return d}
@@ -63,4 +142,21 @@ function math(){let a=rand(20)+1,b=rand(20)+1,op=rand(2)?'+':'−',ans=op==='+'?
 function dodge(){stage.innerHTML='<canvas id="c" width="320" height="360"></canvas><p>Přesouvej modrý čtvereček prstem a vyhýbej se padajícím blokům.</p>';let c=document.querySelector('#c'),x=c.getContext('2d'),px=150,blocks=[],t=0,dead=false;c.onpointermove=e=>px=Math.max(0,Math.min(300,(e.clientX-c.getBoundingClientRect().left)*320/c.clientWidth-10));function tick(){if(dead)return;t++;if(t%35===0)blocks.push({x:rand(300),y:-20});blocks.forEach(b=>b.y+=3);if(blocks.some(b=>b.y>320&&b.y<350&&Math.abs(b.x-px)<20)){dead=true;setScore('Konec! Čas '+Math.floor(t/60)+' s')}x.fillStyle='#080d16';x.fillRect(0,0,320,360);x.fillStyle='#45a4ff';x.fillRect(px,330,20,20);x.fillStyle='#ff5757';blocks.forEach(b=>x.fillRect(b.x,b.y,20,20));if(!dead)raf=requestAnimationFrame(tick)}tick()}
 function color(){let names=['ČERVENÁ','MODRÁ','ZELENÁ','ŽLUTÁ'],n=0;let target=names[rand(4)],shown=names[rand(4)],p=para('');p.innerHTML='';let big=document.createElement('div');big.className='big';big.textContent=shown;big.style.color=['#ff4b4b','#4799ff','#35d98c','#f2d33c'][rand(4)];stage.append(big);para('Vyber barvu napsaného slova, ne barvu písma.');row(...names.map((v)=>btn(v,()=>{if(v===shown){n++;setScore('Body '+n)}else setScore('Zkus znovu');big.textContent=names[rand(4)]})))}
 function puzzle(){let a=[1,2,3,4,5,6,7,8,0];for(let k=0;k<80;k++){let z=a.indexOf(0),opts=[z-3,z+3,z-1,z+1].filter(i=>i>=0&&i<9&&!(Math.abs(i%3-z%3)>1));let j=opts[rand(opts.length)];[a[z],a[j]]=[a[j],a[z]]}let d=document.createElement('div');d.className='board';d.style.gridTemplateColumns='repeat(3,70px)';stage.append(d);function draw(){d.innerHTML='';a.forEach((v,i)=>d.append(btn(v||'',()=>{let z=a.indexOf(0);if([z-3,z+3,z-1,z+1].includes(i)&&!(Math.abs(i%3-z%3)>1)){[a[z],a[i]]=[a[i],a[z]];draw();if(a.join(',')==='1,2,3,4,5,6,7,8,0')setScore('Vyřešeno!')}},'cell')))}draw();para('Seřaď čísla od 1 do 8.')}
+
+function extraGame(n){
+ const mode=(n-22)%12; setScore('Nová výzva!');
+ if(mode===0){let a=rand(40)+5,b=rand(30)+1,op=['+','−','×'][rand(3)],ans=op==='+'?a+b:op==='−'?a-b:a*b;para(`Kolik je ${a} ${op} ${b}?`);let i=document.createElement('input');i.type='number';stage.append(i);row(btn('Ověřit',()=>setScore(+i.value===ans?'Správně!':'Zkus to znovu.')),btn('Nový příklad',()=>extraGame(n),'secondary'))}
+ else if(mode===1){let s=Array.from({length:5},()=>rand(9)+1),p=para('Zapamatuj si: '+s.join(' – ')),i=document.createElement('input');i.placeholder='Napiš čísla za sebou';stage.append(i);row(btn('Skrýt',()=>p.textContent='Teď je napiš zpaměti.'),btn('Ověřit',()=>setScore(i.value.replace(/\D/g,'')===s.join('')?'Správně!':'Správná řada: '+s.join(''))))}
+ else if(mode===2){let q=[['Kolik má týden dní?','7',['5','6','7']],['Kolik nohou má pavouk?','8',['6','8','10']],['Jaká planeta je naše?','Země',['Mars','Země','Venuše']],['Kolik je 5 × 6?','30',['11','30','56']],['Jaké zvíře štěká?','Pes',['Kočka','Pes','Kůň']]][rand(5)];para(q[0]);row(...q[2].sort(()=>Math.random()-.5).map(v=>btn(v,()=>setScore(v===q[1]?'Správně!':'Správná odpověď: '+q[1]))))}
+ else if(mode===3){let a=Array.from({length:5},()=>rand(80)+1),s=[...a].sort((x,y)=>x-y);para('Seřaď od nejmenšího: '+a.join(', '));let i=document.createElement('input');i.placeholder='Např. 1, 2, 3';stage.append(i);row(btn('Ověřit',()=>setScore(i.value.split(/[, ]+/).filter(Boolean).join(',')===s.join(',')?'Správně!':'Pořadí: '+s.join(', '))))}
+ else if(mode===4){let w=['FLORBAL','MINECRAFT','KNIHA','ROBOT','PLANETA'][rand(5)],m=w.split('').sort(()=>Math.random()-.5).join('');para('Rozlušti slovo: '+m);let i=document.createElement('input');i.placeholder='Tvoje odpověď';stage.append(i);row(btn('Ověřit',()=>setScore(i.value.trim().toUpperCase()===w?'Správně!':'Zkus znovu.')))}
+ else if(mode===5){let b=btn('Čekej…',()=>{});stage.append(b);para('Až se tlačítko změní, rychle klepni.');let ready=false,t=0;timer=setTimeout(()=>{ready=true;t=performance.now();b.textContent='TEĎ!';b.style.background='#65ef73'},1200+rand(3500));b.onclick=()=>{if(!ready){clearTimeout(timer);b.textContent='Moc brzy! Spusť znovu.'}else{b.textContent='Čas: '+Math.round(performance.now()-t)+' ms';ready=false}}}
+ else if(mode===6){let a=rand(8)+2,k=rand(5)+2,s=[a,a+k,a+2*k,a+3*k];para('Doplň řadu: '+s.join(', ')+', …');let i=document.createElement('input');i.type='number';stage.append(i);row(btn('Ověřit',()=>setScore(+i.value===a+4*k?'Správně!':'Správná odpověď: '+(a+4*k))))}
+ else if(mode===7){let sy=['⭐','🍀','🔔','💎','🎈','⚽'],t=sy[rand(6)];para('Najdi symbol: '+t);row(...sy.sort(()=>Math.random()-.5).map(s=>btn(s,()=>setScore(s===t?'Našel jsi ho!':'To není on.'))))}
+ else if(mode===8){let a=rand(90)+10,b=rand(90)+10;para('Které číslo je větší?');row(btn(String(a),()=>setScore(a>b?'Správně!':'Větší je '+Math.max(a,b))),btn(String(b),()=>setScore(b>a?'Správně!':'Větší je '+Math.max(a,b))))}
+ else if(mode===9){let t=rand(9),d=document.createElement('div');d.className='board';d.style.gridTemplateColumns='repeat(3,68px)';stage.append(d);para('Tref políčko se ⭐');for(let j=0;j<9;j++)d.append(btn(j===t?'⭐':'⬜',()=>setScore(j===t?'Přesná trefa!':'Vedle!'),'cell'))}
+ else if(mode===10){let q=[['Hlavní město ČR?','Praha',['Praha','Brno','Ostrava']],['Kolik je 9 + 8?','17',['16','17','18']],['Čím dýchají ryby?','Žábrami',['Plícemi','Žábrami','Kůží']]][rand(3)];para(q[0]);row(...q[2].sort(()=>Math.random()-.5).map(v=>btn(v,()=>setScore(v===q[1]?'Správně!':'Odpověď: '+q[1]))))}
+ else {let t=rand(50)+1;para('Hádej číslo od 1 do 50.');let i=document.createElement('input');i.type='number';stage.append(i);row(btn('Tipnout',()=>setScore(+i.value===t?'Uhodl jsi!':+i.value<t?'Zkus větší.':'Zkus menší.')),btn('Nové číslo',()=>extraGame(n),'secondary'))}
+}
+
 </script></body></html>
