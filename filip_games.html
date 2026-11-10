@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Filip Games</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101827;color:#f8fafc;font-family:system-ui,Arial,sans-serif}
+header{text-align:center;padding:22px 12px 12px}h1{margin:0;color:#4ade80;font-size:2rem}header p{margin:5px;color:#cbd5e1}
+nav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:10px}
+button{border:0;border-radius:12px;padding:11px 16px;background:#22c55e;color:#06210f;font-weight:700;font-size:1rem}
+button.secondary{background:#334155;color:white}
+main{max-width:650px;margin:auto;padding:12px}
+.panel{background:#1e293b;border:1px solid #334155;border-radius:18px;padding:15px;margin:10px 0}
+.hidden{display:none}.gamehead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+#snakeCanvas{display:block;width:min(90vw,420px);height:min(90vw,420px);margin:14px auto;background:#07111f;border:3px solid #64748b;border-radius:8px;touch-action:none}
+.controls{display:grid;grid-template-columns:repeat(3,64px);gap:7px;justify-content:center;margin:12px}
+.controls button{height:52px;padding:4px;font-size:1.3rem}
+#chessboard{display:grid;grid-template-columns:repeat(8,1fr);width:min(94vw,500px);margin:14px auto;border:4px solid #475569}
+.square{aspect-ratio:1;display:grid;place-items:center;font-size:clamp(25px,8vw,48px);padding:0;border-radius:0;color:#111}
+.light{background:#f0d9b5}.dark{background:#b58863}.selected{outline:4px solid #facc15;outline-offset:-4px}.legal{box-shadow:inset 0 0 0 5px #22c55e}
+#chessStatus{text-align:center;min-height:28px}
+.small{color:#cbd5e1;font-size:.9rem;text-align:center}
+</style>
+</head>
+<body>
+<header><h1>🎮 FILIP GAMES</h1><p>Moje hry – zahraj si přímo v prohlížeči</p></header>
+<nav><button onclick="showGame('snake')">🐍 Had</button><button onclick="showGame('chess')">♟️ Šachy</button></nav>
+<main>
+<section id="snake" class="panel">
+ <div class="gamehead"><h2>🐍 Had</h2><strong>Body: <span id="score">0</span></strong><button class="secondary" onclick="startSnake()">Nová hra</button></div>
+ <canvas id="snakeCanvas" width="420" height="420"></canvas>
+ <div class="controls">
+  <span></span><button onclick="setDir(0,-1)">⬆️</button><span></span>
+  <button onclick="setDir(-1,0)">⬅️</button><button onclick="setDir(0,1)">⬇️</button><button onclick="setDir(1,0)">➡️</button>
+ </div>
+ <p class="small">Ovládání šipkami na obrazovce nebo klávesnicí. Na ploše můžeš také přejet prstem.</p>
+</section>
+<section id="chess" class="panel hidden">
+ <div class="gamehead"><h2>♟️ Šachy</h2><button class="secondary" onclick="newChess()">Nová partie</button></div>
+ <div id="chessStatus">Načítám šachy…</div>
+ <div id="chessboard" aria-label="Šachovnice"></div>
+ <p class="small">Vyber svoji figurku a potom políčko, kam ji chceš přesunout. Hraje se podle běžných šachových pravidel.</p>
+</section>
+</main>
+<script>
+// Snake
+const cv=document.getElementById('snakeCanvas'),ctx=cv.getContext('2d'),N=21,C=20;
+let snake,food,dx,dy,score,timer,alive;
+function startSnake(){clearInterval(timer);snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];dx=1;dy=0;score=0;alive=true;food={x:15,y:10};document.getElementById('score').textContent=0;drawSnake();timer=setInterval(tick,135)}
+function setDir(x,y){if(x===-dx&&y===-dy)return;dx=x;dy=y}
+function tick(){if(!alive)return;let h={x:snake[0].x+dx,y:snake[0].y+dy};if(h.x<0||h.y<0||h.x>=N||h.y>=N||snake.some(p=>p.x===h.x&&p.y===h.y)){alive=false;clearInterval(timer);drawSnake();ctx.fillStyle='white';ctx.font='bold 24px system-ui';ctx.textAlign='center';ctx.fillText('Konec hry – Nová hra',210,210);return}snake.unshift(h);if(h.x===food.x&&h.y===food.y){score++;document.getElementById('score').textContent=score;let p;do{p={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)}}while(snake.some(s=>s.x===p.x&&s.y===p.y));food=p}else snake.pop();drawSnake()}
+function drawSnake(){ctx.fillStyle='#07111f';ctx.fillRect(0,0,420,420);ctx.fillStyle='#ef4444';ctx.fillRect(food.x*C+2,food.y*C+2,C-4,C-4);snake.forEach((p,i)=>{ctx.fillStyle=i?'#16a34a':'#4ade80';ctx.fillRect(p.x*C+1,p.y*C+1,C-2,C-2)})}
+document.addEventListener('keydown',e=>{let m={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key];if(m){e.preventDefault();setDir(...m)}});
+let touchStart=null;cv.addEventListener('touchstart',e=>{touchStart=[e.touches[0].clientX,e.touches[0].clientY]},{passive:true});cv.addEventListener('touchend',e=>{if(!touchStart)return;let x=e.changedTouches[0].clientX-touchStart[0],y=e.changedTouches[0].clientY-touchStart[1];if(Math.max(Math.abs(x),Math.abs(y))>15){if(Math.abs(x)>Math.abs(y))setDir(Math.sign(x),0);else setDir(0,Math.sign(y))}touchStart=null},{passive:true});
+function showGame(id){document.getElementById('snake').classList.toggle('hidden',id!=='snake');document.getElementById('chess').classList.toggle('hidden',id!=='chess')}
+startSnake();
+
+// Chess.js supplies full legal move validation, castling, en passant and promotion.
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script>
+const chess=new Chess(), board=document.getElementById('chessboard'), statusEl=document.getElementById('chessStatus');
+const pieces={wp:'♙',wn:'♘',wb:'♗',wr:'♖',wq:'♕',wk:'♔',bp:'♟︎',bn:'♞',bb:'♝',br:'♜',bq:'♛',bk:'♚'};
+let selected=null,legalMoves=[];
+function renderChess(){
+ board.innerHTML='';
+ const b=chess.board();
+ for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+  const sq=String.fromCharCode(97+c)+(8-r),p=b[r][c],el=document.createElement('button');
+  el.className='square '+((r+c)%2?'dark':'light')+(selected===sq?' selected':'')+(legalMoves.some(m=>m.to===sq)?' legal':'');
+  el.textContent=p?pieces[p.color+p.type]:'';
+  el.setAttribute('aria-label',sq+(p?' '+p.type:''));
+  el.onclick=()=>tapSquare(sq);board.appendChild(el);
+ }
+ let s=chess.turn()==='w'?'Bílý':'Černý';
+ if(chess.in_checkmate())s='Mat! Vyhrál '+(chess.turn()==='w'?'černý':'bílý')+'.';
+ else if(chess.in_stalemate()||chess.in_draw())s='Remíza.';
+ else s+=' je na tahu.'+(chess.in_check()?' Šach!':'');
+ statusEl.textContent=s;
+}
+function tapSquare(sq){
+ if(selected){let move=chess.move({from:selected,to:sq,promotion:'q'});if(move){selected=null;legalMoves=[];renderChess();return}}
+ const p=chess.get(sq);
+ if(p&&p.color===chess.turn()){selected=sq;legalMoves=chess.moves({square:sq,verbose:true})}else{selected=null;legalMoves=[]}
+ renderChess();
+}
+function newChess(){chess.reset();selected=null;legalMoves=[];renderChess()}
+renderChess();
+</script>
+</body></html>
