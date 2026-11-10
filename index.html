@@ -1,80 +1,153 @@
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="cs">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>FILIP GAMES</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filip Games – 6 her</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#101827;color:#f8fafc;font-family:system-ui,Arial}header{text-align:center;padding:18px 10px}h1{margin:0;color:#4ade80;font-size:2rem}header p{margin:4px;color:#cbd5e1}
-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-width:650px;margin:auto;padding:8px}
-button{border:0;border-radius:10px;padding:11px;background:#22c55e;color:#052e16;font-weight:700;font-size:1rem;cursor:pointer}nav button{background:#334155;color:white}nav button.active{background:#22c55e;color:#052e16}
-main{max-width:680px;margin:auto;padding:8px 12px 30px}.game{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:14px}.hidden{display:none}.top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.top h2{margin:4px 0}.muted{color:#cbd5e1;text-align:center;font-size:.9rem}
-canvas{display:block;max-width:100%;height:auto;background:#07111f;border:2px solid #64748b;border-radius:9px;margin:12px auto;touch-action:none}
-.pad{display:grid;grid-template-columns:repeat(3,58px);gap:6px;justify-content:center;margin:10px}.pad button{height:48px;font-size:1.2rem;padding:4px}
-#chessboard{display:grid;grid-template-columns:repeat(8,1fr);width:min(94vw,480px);margin:12px auto;border:3px solid #475569}.sq{aspect-ratio:1;border-radius:0;padding:0;display:grid;place-items:center;font-size:clamp(24px,7vw,44px);color:#111}.light{background:#f0d9b5}.dark{background:#b58863}.selected{outline:4px solid #facc15;outline-offset:-4px}.legal{box-shadow:inset 0 0 0 4px #22c55e}
-.ttt{display:grid;grid-template-columns:repeat(3, min(26vw,100px));gap:6px;justify-content:center;margin:18px}.ttt button{height:min(26vw,100px);font-size:2.5rem;background:#e2e8f0;color:#0f172a}
-#memory{display:grid;grid-template-columns:repeat(4,min(20vw,82px));gap:8px;justify-content:center;margin:16px}#memory button{height:min(20vw,82px);font-size:1.8rem;background:#475569;color:white}
-.action{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+:root{color-scheme:dark;--bg:#101827;--panel:#1c2940;--accent:#55d6a5;--text:#f4f7fb}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#101827,#172b3d);color:var(--text);text-align:center;padding:18px}
+h1{margin:8px 0 18px;color:var(--accent)}
+nav{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:18px}
+button{border:0;border-radius:10px;padding:11px 15px;background:#31435f;color:white;font-weight:bold;cursor:pointer}
+button.active,button:hover{background:var(--accent);color:#10221c}
+.panel{display:none;background:var(--panel);max-width:760px;margin:auto;padding:18px;border-radius:16px;box-shadow:0 8px 30px #0005}
+.panel.active{display:block}
+canvas{background:#07111d;border:2px solid #536781;border-radius:10px;max-width:100%;touch-action:none}
+.info{color:#cbd5e1}
+.controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px}
+#memoryGrid{display:grid;grid-template-columns:repeat(4,minmax(55px,85px));gap:8px;justify-content:center}
+.card{height:70px;font-size:25px;background:#405575}
+#board{display:grid;grid-template-columns:repeat(3,90px);gap:7px;justify-content:center}
+.cell{height:90px;font-size:35px;background:#405575}
+#chessBoard{display:grid;grid-template-columns:repeat(8,minmax(30px,52px));justify-content:center;max-width:100%;margin:auto}
+.square{aspect-ratio:1;padding:0;border-radius:0;font-size:clamp(20px,5vw,34px);display:grid;place-items:center}
+.light{background:#e7d8b5;color:#17202b}.dark{background:#607b69;color:#fff}
+.selected{outline:4px solid #ffcf4a;outline-offset:-4px}
+small{display:block;margin-top:12px;color:#cbd5e1}
 </style>
 </head>
 <body>
-<header><h1>🎮 FILIP GAMES</h1><p>Šest her na jednom místě</p></header>
-<nav id="menu">
-<button class="active" onclick="show('snake',this)">🐍 Had</button>
-<button onclick="show('chess',this)">♟️ Šachy</button>
-<button onclick="show('ttt',this)">⭕ Piškvorky</button>
-<button onclick="show('pong',this)">🏓 Pong</button>
-<button onclick="show('memory',this)">🧠 Pexeso</button>
-<button onclick="show('breakout',this)">🧱 Arkanoid</button>
+<h1>🎮 Filip Games</h1>
+<nav>
+<button class="active" data-game="snake">🐍 Had</button>
+<button data-game="chess">♟ Šachy</button>
+<button data-game="ttt">⭕ Piškvorky</button>
+<button data-game="pong">🏓 Pong</button>
+<button data-game="memory">🧠 Pexeso</button>
+<button data-game="arkanoid">🧱 Arkanoid</button>
 </nav>
-<main>
-<section id="snake" class="game">
-<div class="top"><h2>🐍 Had</h2><b>Body: <span id="snakeScore">0</span></b><button onclick="snakeStart()">Nová hra</button></div>
-<canvas id="snakeCanvas" width="360" height="360"></canvas>
-<div class="pad"><span></span><button onclick="snakeDir(0,-1)">⬆️</button><span></span><button onclick="snakeDir(-1,0)">⬅️</button><button onclick="snakeDir(0,1)">⬇️</button><button onclick="snakeDir(1,0)">➡️</button></div>
-<p class="muted">Na telefonu přejeď prstem po hrací ploše nebo použij šipky. Na počítači fungují šipky na klávesnici.</p>
+
+<section id="snake" class="panel active">
+<h2>🐍 Had</h2><p class="info">Na mobilu přejeď prstem po ploše hry. Na počítači použij šipky.</p>
+<canvas id="snakeCanvas" width="400" height="400"></canvas>
+<p>Skóre: <b id="snakeScore">0</b></p><button id="snakeStart">Spustit / znovu</button>
+<small>Tip: krátké přejetí prstem nahoru, dolů, doleva nebo doprava změní směr.</small>
 </section>
-<section id="chess" class="game hidden"><div class="top"><h2>♟️ Šachy</h2><button onclick="resetChess()">Nová partie</button></div><p id="chessStatus" class="muted">Bílý je na tahu.</p><div id="chessboard"></div><p class="muted">Vyber figurku a potom cílové políčko. Šachy pro dva hráče na jednom zařízení.</p></section>
-<section id="ttt" class="game hidden"><div class="top"><h2>⭕ Piškvorky</h2><button onclick="tttReset()">Nová hra</button></div><p id="tttStatus" class="muted">Na tahu je X.</p><div class="ttt" id="tttBoard"></div><p class="muted">Hra pro dva hráče na jednom zařízení.</p></section>
-<section id="pong" class="game hidden"><div class="top"><h2>🏓 Pong</h2><button onclick="pongStart()">Spustit / restart</button></div><p class="muted">Ovládej pálku prstem nebo myší. Odraž míček co nejdéle!</p><canvas id="pongCanvas" width="360" height="440"></canvas></section>
-<section id="memory" class="game hidden"><div class="top"><h2>🧠 Pexeso</h2><button onclick="memoryStart()">Nová hra</button></div><p id="memoryStatus" class="muted">Najdi všechny dvojice.</p><div id="memory"></div></section>
-<section id="breakout" class="game hidden"><div class="top"><h2>🧱 Arkanoid</h2><button onclick="breakStart()">Nová hra</button></div><p class="muted">Posouvej pálku prstem nebo myší a rozbij všechny cihličky.</p><canvas id="breakCanvas" width="360" height="440"></canvas></section>
-</main>
+
+<section id="chess" class="panel">
+<h2>♟ Šachy</h2><p class="info">Jednoduchá šachovnice pro dva hráče. Vyber figurku a potom cílové políčko.</p>
+<div id="chessBoard"></div><p id="chessMsg">Na tahu jsou bílé.</p><button id="chessReset">Nová hra</button>
+</section>
+
+<section id="ttt" class="panel">
+<h2>⭕ Piškvorky</h2><p class="info">Hrajte ve dvou na jednom zařízení.</p>
+<div id="board"></div><p id="tttMsg">Na tahu je X.</p><button id="tttReset">Nová hra</button>
+</section>
+
+<section id="pong" class="panel">
+<h2>🏓 Pong</h2><p class="info">Na počítači pohybuj myší. Na mobilu táhni prstem po ploše.</p>
+<canvas id="pongCanvas" width="520" height="300"></canvas><p id="pongScore">0 : 0</p><button id="pongStart">Spustit / restartovat</button>
+</section>
+
+<section id="memory" class="panel">
+<h2>🧠 Pexeso</h2><p class="info">Najdi všechny dvojice.</p><div id="memoryGrid"></div><p id="memoryMsg">Najdi stejné obrázky.</p><button id="memoryReset">Nová hra</button>
+</section>
+
+<section id="arkanoid" class="panel">
+<h2>🧱 Arkanoid</h2><p class="info">Ovládej plošinku myší nebo prstem. Odraž míček a rozbij cihly.</p>
+<canvas id="arkCanvas" width="520" height="330"></canvas><p id="arkMsg">Klikni na Spustit.</p><button id="arkStart">Spustit / restartovat</button>
+</section>
+
 <script>
-function show(id,btn){document.querySelectorAll('.game').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active')}
-const $=id=>document.getElementById(id);
-// Snake
-let sc=$('snakeCanvas'),sx=sc.getContext('2d'),sn,food,sd=[1,0],ss=0,st,sa=false;
-function snakeStart(){clearInterval(st);sn=[{x:9,y:9},{x:8,y:9},{x:7,y:9}];sd=[1,0];ss=0;sa=true;food={x:14,y:9};$('snakeScore').textContent=0;snakeDraw();st=setInterval(snakeTick,135)}
-function snakeDir(x,y){if(x!==-sd[0]||y!==-sd[1])sd=[x,y]}
-function snakeDraw(){sx.fillStyle='#07111f';sx.fillRect(0,0,360,360);sx.fillStyle='#ef4444';sx.fillRect(food.x*18+2,food.y*18+2,14,14);sn.forEach((p,i)=>{sx.fillStyle=i?'#16a34a':'#4ade80';sx.fillRect(p.x*18+1,p.y*18+1,16,16)})}
-function snakeTick(){let h={x:sn[0].x+sd[0],y:sn[0].y+sd[1]};if(h.x<0||h.y<0||h.x>=20||h.y>=20||sn.some(p=>p.x===h.x&&p.y===h.y)){sa=false;clearInterval(st);snakeDraw();sx.fillStyle='white';sx.font='bold 20px system-ui';sx.textAlign='center';sx.fillText('Konec hry!',180,185);return}sn.unshift(h);if(h.x===food.x&&h.y===food.y){ss++;$('snakeScore').textContent=ss;do{food={x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)}}while(sn.some(p=>p.x===food.x&&p.y===food.y))}else sn.pop();snakeDraw()}
-document.addEventListener('keydown',e=>{let d={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key];if(d){e.preventDefault();snakeDir(...d)}});
-let touch=null;sc.addEventListener('touchstart',e=>{touch=[e.touches[0].clientX,e.touches[0].clientY]},{passive:true});sc.addEventListener('touchend',e=>{if(!touch)return;let dx=e.changedTouches[0].clientX-touch[0],dy=e.changedTouches[0].clientY-touch[1];if(Math.max(Math.abs(dx),Math.abs(dy))>12){if(Math.abs(dx)>Math.abs(dy))snakeDir(Math.sign(dx),0);else snakeDir(0,Math.sign(dy))}touch=null},{passive:true});snakeStart();
-// Chess with legal move library
-const chessScript=document.createElement('script');chessScript.src='https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js';document.head.appendChild(chessScript);
-let game=null,chosen=null,moves=[];const glyph={wp:'♙',wn:'♘',wb:'♗',wr:'♖',wq:'♕',wk:'♔',bp:'♟',bn:'♞',bb:'♝',br:'♜',bq:'♛',bk:'♚'};
-function resetChess(){if(!window.Chess){$('chessStatus').textContent='Šachová pravidla se načítají. Zkus to za chvíli.';return}game=new Chess();chosen=null;moves=[];chessRender()}
-function chessRender(){let board=$('chessboard');board.innerHTML='';let a=game.board();for(let r=0;r<8;r++)for(let c=0;c<8;c++){let sq=String.fromCharCode(97+c)+(8-r),p=a[r][c],b=document.createElement('button');b.className='sq '+((r+c)%2?'dark':'light')+(chosen===sq?' selected':'')+(moves.some(m=>m.to===sq)?' legal':'');b.textContent=p?glyph[p.color+p.type]:'';b.onclick=()=>chessTap(sq);board.appendChild(b)}let turn=game.turn()==='w'?'Bílý':'Černý';$('chessStatus').textContent=game.game_over()?'Konec partie.':turn+' je na tahu.'+(game.in_check()?' Šach!':'')}
-function chessTap(sq){if(!game)return;if(chosen){let m=game.move({from:chosen,to:sq,promotion:'q'});if(m){chosen=null;moves=[];chessRender();return}}let p=game.get(sq);if(p&&p.color===game.turn()){chosen=sq;moves=game.moves({square:sq,verbose:true})}else{chosen=null;moves=[]}chessRender()}
-chessScript.onload=resetChess;
-// Tic tac toe
-let cells=Array(9).fill(''),player='X',done=false;
-function tttReset(){cells=Array(9).fill('');player='X';done=false;tttRender()}
-function tttRender(){$('tttBoard').innerHTML='';cells.forEach((v,i)=>{let b=document.createElement('button');b.textContent=v;b.onclick=()=>{if(!v&&!done){cells[i]=player;let wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];let w=wins.some(a=>a.every(k=>cells[k]===player));if(w||cells.every(Boolean)){done=true;$('tttStatus').textContent=w?'Vyhrál '+player+'!':'Remíza!'}else{player=player==='X'?'O':'X';$('tttStatus').textContent='Na tahu je '+player+'.'}tttRender()}};$('tttBoard').appendChild(b)})}tttReset();
-// Pong
-let pc=$('pongCanvas'),px=pc.getContext('2d'),paddle=135,ball={x:180,y:220,vx:3,vy:3},pongOn=false,pongId;
-function pongStart(){cancelAnimationFrame(pongId);paddle=135;ball={x:180,y:220,vx:3,vy:3};pongOn=true;pongLoop()}
-function pongLoop(){if(!pongOn)return;px.fillStyle='#07111f';px.fillRect(0,0,360,440);px.fillStyle='#4ade80';px.fillRect(paddle,415,90,12);px.beginPath();px.arc(ball.x,ball.y,8,0,Math.PI*2);px.fill();ball.x+=ball.vx;ball.y+=ball.vy;if(ball.x<8||ball.x>352)ball.vx*=-1;if(ball.y<8)ball.vy*=-1;if(ball.y>407&&ball.x>paddle&&ball.x<paddle+90)ball.vy=-Math.abs(ball.vy);if(ball.y>440){pongOn=false;px.fillStyle='white';px.font='22px system-ui';px.fillText('Konec hry',120,220);return}pongId=requestAnimationFrame(pongLoop)}
-function movePaddle(e,canvas,cb){let r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*360;cb(Math.max(0,Math.min(270,x-45)))}pc.addEventListener('pointermove',e=>movePaddle(e,pc,x=>paddle=x));
-// Memory
-let deck=[],first=null,lock=false,found=0;
-function memoryStart(){deck=['🐶','🐱','🐸','🦊','🐼','🦁','🐵','🐧', '🐶','🐱','🐸','🦊','🐼','🦁','🐵','🐧'].sort(()=>Math.random()-.5);first=null;lock=false;found=0;$('memoryStatus').textContent='Najdi všechny dvojice.';memoryRender()}
-function memoryRender(){let box=$('memory');box.innerHTML='';deck.forEach((v,i)=>{let b=document.createElement('button');b.textContent=v;let hidden=!v.startsWith('!')&&!v.startsWith('*');b.textContent=hidden?'❔':v.slice(1);b.onclick=()=>{if(lock||!hidden)return;deck[i]='*'+v;b.textContent=v;if(first===null){first=i}else{let j=first;lock=true;if(deck[j].slice(1)===deck[i].slice(1)){deck[j]='!'+deck[j].slice(1);deck[i]='!'+deck[i].slice(1);found+=2;lock=false;first=null;$('memoryStatus').textContent=found===16?'Výborně! Našel jsi všechny dvojice.':'Nalezené dvojice: '+found/2+'/8'}else setTimeout(()=>{deck[j]=deck[j].slice(1);deck[i]=deck[i].slice(1);first=null;lock=false;memoryRender()},750)}memoryRender()};box.appendChild(b)})}memoryStart();
-// Breakout
-let bc=$('breakCanvas'),bx=bc.getContext('2d'),bricks=[],bat=140,orb={x:180,y:350,vx:2.7,vy:-3},breakOn=false;
-function breakStart(){bricks=[];for(let r=0;r<5;r++)for(let c=0;c<7;c++)bricks.push({x:8+c*49,y:35+r*24,on:true});bat=140;orb={x:180,y:350,vx:2.7,vy:-3};breakOn=true;breakLoop()}
-function breakLoop(){if(!breakOn)return;bx.fillStyle='#07111f';bx.fillRect(0,0,360,440);bricks.forEach((b,i)=>{if(b.on){bx.fillStyle=['#fb7185','#fbbf24','#4ade80','#60a5fa','#c084fc'][Math.floor(i/7)];bx.fillRect(b.x,b.y,43,17)}});bx.fillStyle='#4ade80';bx.fillRect(bat,415,80,10);bx.beginPath();bx.arc(orb.x,orb.y,7,0,Math.PI*2);bx.fill();orb.x+=orb.vx;orb.y+=orb.vy;if(orb.x<7||orb.x>353)orb.vx*=-1;if(orb.y<7)orb.vy*=-1;if(orb.y>405&&orb.x>bat&&orb.x<bat+80)orb.vy=-Math.abs(orb.vy);bricks.forEach(b=>{if(b.on&&orb.x>b.x&&orb.x<b.x+43&&orb.y>b.y&&orb.y<b.y+17){b.on=false;orb.vy*=-1}});if(orb.y>440||bricks.every(b=>!b.on)){breakOn=false;bx.fillStyle='white';bx.font='20px system-ui';bx.fillText(orb.y>440?'Konec hry':'Vyhrál jsi!',125,250);return}requestAnimationFrame(breakLoop)}
-bc.addEventListener('pointermove',e=>movePaddle(e,bc,x=>bat=Math.min(280,x)));
-breakStart();
-</script></body></html>
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{
+ document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+ document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+ b.classList.add('active');document.getElementById(b.dataset.game).classList.add('active');
+}));
+
+// HAD – šipky + dotykové přejetí
+const sc=document.getElementById('snakeCanvas'),sx=sc.getContext('2d'),N=20,cell=20;
+let snake,food,dir,nextDir,score,snakeTimer=null,snakeOver=false,touchStart=null;
+function snakeReset(){
+ clearInterval(snakeTimer);snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+ dir={x:1,y:0};nextDir={x:1,y:0};score=0;snakeOver=false;food={x:15,y:10};document.getElementById('snakeScore').textContent=0;drawSnake();
+}
+function drawSnake(){
+ sx.fillStyle='#07111d';sx.fillRect(0,0,400,400);
+ sx.fillStyle='#ff657a';sx.fillRect(food.x*cell+2,food.y*cell+2,cell-4,cell-4);
+ snake.forEach((p,i)=>{sx.fillStyle=i?'#55d6a5':'#b5ffe2';sx.fillRect(p.x*cell+1,p.y*cell+1,cell-2,cell-2)});
+ if(snakeOver){sx.fillStyle='white';sx.font='bold 25px Arial';sx.textAlign='center';sx.fillText('Konec hry',200,205)}
+}
+function setSnakeDir(x,y){if(x===-dir.x&&y===-dir.y)return;nextDir={x,y}}
+document.addEventListener('keydown',e=>{
+ const m={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]};
+ if(m[e.key]&&document.getElementById('snake').classList.contains('active')){e.preventDefault();setSnakeDir(...m[e.key])}
+});
+sc.addEventListener('pointerdown',e=>{touchStart={x:e.clientX,y:e.clientY};sc.setPointerCapture(e.pointerId)});
+sc.addEventListener('pointerup',e=>{
+ if(!touchStart)return;let dx=e.clientX-touchStart.x,dy=e.clientY-touchStart.y;touchStart=null;
+ if(Math.max(Math.abs(dx),Math.abs(dy))<15)return;
+ if(Math.abs(dx)>Math.abs(dy))setSnakeDir(dx>0?1:-1,0);else setSnakeDir(0,dy>0?1:-1);
+});
+function snakeStep(){
+ if(snakeOver)return;dir=nextDir;let h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+ if(h.x<0||h.y<0||h.x>=N||h.y>=N||snake.some(p=>p.x===h.x&&p.y===h.y)){snakeOver=true;clearInterval(snakeTimer);drawSnake();return}
+ snake.unshift(h);
+ if(h.x===food.x&&h.y===food.y){score++;document.getElementById('snakeScore').textContent=score;do{food={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)}}while(snake.some(p=>p.x===food.x&&p.y===food.y))}
+ else snake.pop();drawSnake();
+}
+document.getElementById('snakeStart').onclick=()=>{snakeReset();snakeTimer=setInterval(snakeStep,125)};
+snakeReset();
+
+// PIŠKVORKY
+let cells=Array(9).fill(''),turn='X',tttDone=false;
+function drawTTT(){let board=document.getElementById('board');board.innerHTML='';cells.forEach((v,i)=>{let b=document.createElement('button');b.className='cell';b.textContent=v;b.onclick=()=>playTTT(i);board.appendChild(b)});document.getElementById('tttMsg').textContent=tttDone?'Konec hry. Stiskni Nová hra.':'Na tahu je '+turn+'.'}
+function playTTT(i){if(cells[i]||tttDone)return;cells[i]=turn;let wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];if(wins.some(w=>w.every(j=>cells[j]===turn))){tttDone=true;document.getElementById('tttMsg').textContent='Vyhrál '+turn+'!'}else if(cells.every(Boolean)){tttDone=true;document.getElementById('tttMsg').textContent='Remíza!'}else turn=turn==='X'?'O':'X';drawTTT()}
+document.getElementById('tttReset').onclick=()=>{cells=Array(9).fill('');turn='X';tttDone=false;drawTTT()};drawTTT();
+
+// PEXESO
+const emojis=['🐶','🐱','🐸','🦊','🐼','🐵','🦁','🐧'];let mem=[],opened=[],matched=0,lock=false;
+function memoryNew(){mem=[...emojis,...emojis].sort(()=>Math.random()-.5);opened=[];matched=0;lock=false;drawMemory();document.getElementById('memoryMsg').textContent='Najdi stejné obrázky.'}
+function drawMemory(){let g=document.getElementById('memoryGrid');g.innerHTML='';mem.forEach((v,i)=>{let b=document.createElement('button');b.className='card';b.textContent=opened.includes(i)||matchedCards.has(i)?v:'?';b.onclick=()=>flip(i);g.appendChild(b)})}
+let matchedCards=new Set();
+function flip(i){if(lock||opened.includes(i)||matchedCards.has(i))return;opened.push(i);drawMemory();if(opened.length===2){lock=true;let [a,b]=opened;if(mem[a]===mem[b]){matchedCards.add(a);matchedCards.add(b);matched+=2;opened=[];lock=false;drawMemory();if(matched===16)document.getElementById('memoryMsg').textContent='Výborně! Našel jsi všechny dvojice.'}else setTimeout(()=>{opened=[];lock=false;drawMemory()},750)}}
+document.getElementById('memoryReset').onclick=()=>{matchedCards=new Set();memoryNew()};memoryNew();
+
+// ŠACHY – základní pohyb figur bez kontroly šachu
+const cb=document.getElementById('chessBoard');
+const startChess=['♜','♞','♝','♛','♚','♝','♞','♜','♟','♟','♟','♟','♟','♟','♟','♟','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','♙','♙','♙','♙','♙','♙','♙','♙','♖','♘','♗','♕','♔','♗','♘','♖'];
+let chess=startChess.slice(),sel=-1,whiteTurn=true;
+function isWhite(p){return '♙♖♘♗♕♔'.includes(p)}
+function chessDraw(){cb.innerHTML='';chess.forEach((p,i)=>{let b=document.createElement('button');b.className='square '+(((Math.floor(i/8)+i%8)%2)?'dark':'light')+(sel===i?' selected':'');b.textContent=p;b.onclick=()=>chessClick(i);cb.appendChild(b)});document.getElementById('chessMsg').textContent='Na tahu jsou '+(whiteTurn?'bílé':'černé')+'. Vyber figurku a cílové pole.'}
+function chessClick(i){if(sel<0){if(chess[i]&&isWhite(chess[i])===whiteTurn)sel=i}else{if(i!==sel&&(!chess[i]||isWhite(chess[i])!==whiteTurn)){chess[i]=chess[sel];chess[sel]='';whiteTurn=!whiteTurn}sel=-1}chessDraw()}
+document.getElementById('chessReset').onclick=()=>{chess=startChess.slice();sel=-1;whiteTurn=true;chessDraw()};chessDraw();
+
+// PONG
+const pc=document.getElementById('pongCanvas'),px=pc.getContext('2d');let py=120,ball={x:260,y:150,vx:4,vy:3},pScore=0,cScore=0,pongRun=false,pongAnim=0;
+function pongDraw(){px.fillStyle='#07111d';px.fillRect(0,0,520,300);px.fillStyle='white';px.fillRect(12,py,10,65);px.fillRect(498,ball.y-32,10,65);px.beginPath();px.arc(ball.x,ball.y,8,0,7);px.fill();px.setLineDash([6,7]);px.beginPath();px.moveTo(260,0);px.lineTo(260,300);px.strokeStyle='#8293aa';px.stroke();document.getElementById('pongScore').textContent=pScore+' : '+cScore}
+function pongLoop(){if(!pongRun)return;ball.x+=ball.vx;ball.y+=ball.vy;if(ball.y<8||ball.y>292)ball.vy*=-1;if(ball.x<26&&ball.y>py-5&&ball.y<py+70){ball.vx=Math.abs(ball.vx)*1.04}else if(ball.x>490&&ball.y>ball.y-0){}if(ball.x>486&&ball.y>ball.y-33&&ball.y<ball.y+33){}if(ball.x>486){if(ball.y>document.getElementById('pongCanvas').height/2-32&&ball.y<document.getElementById('pongCanvas').height/2+32)ball.vx=-Math.abs(ball.vx)}if(ball.x>520){pScore++;ball={x:260,y:150,vx:-4,vy:3}}if(ball.x<0){cScore++;ball={x:260,y:150,vx:4,vy:3}}let target=ball.y-32;let enemy=ball.y-32; // simple opponent follows ball
+pongDraw();pongAnim=requestAnimationFrame(pongLoop)}
+function movePong(e){let r=pc.getBoundingClientRect();py=Math.max(0,Math.min(235,(e.clientY-r.top)*300/r.height-32));pongDraw()}
+pc.addEventListener('pointermove',movePong);document.getElementById('pongStart').onclick=()=>{cancelAnimationFrame(pongAnim);pScore=0;cScore=0;ball={x:260,y:150,vx:4,vy:3};pongRun=true;pongLoop()};pongDraw();
+
+// ARKANOID
+const ac=document.getElementById('arkCanvas'),ax=ac.getContext('2d');let paddle=220,ab={x:260,y:270,vx:3,vy:-3},bricks=[],arkRun=false,arkFrame=0;
+function arkNew(){bricks=[];for(let r=0;r<4;r++)for(let c=0;c<9;c++)bricks.push({x:12+c*56,y:25+r*25,on:true});paddle=220;ab={x:260,y:270,vx:3,vy:-3};}
+function arkDraw(){ax.fillStyle='#07111d';ax.fillRect(0,0,520,330);bricks.forEach(b=>{if(b.on){ax.fillStyle='#'+['ff657a','ffc857','55d6a5','69a9ff'][Math.floor((b.y-25)/25)];ax.fillRect(b.x,b.y,50,17)}});ax.fillStyle='#f5f7fb';ax.fillRect(paddle,306,85,10);ax.beginPath();ax.arc(ab.x,ab.y,7,0,7);ax.fill()}
+function arkLoop(){if(!arkRun)return;ab.x+=ab.vx;ab.y+=ab.vy;if(ab.x<7||ab.x>513)ab.vx*=-1;if(ab.y<7)ab.vy*=-1;if(ab.y>296&&ab.x>paddle-5&&ab.x<paddle+90)ab.vy=-Math.abs(ab.vy);bricks.forEach(b=>{if(b.on&&ab.x>b.x&&ab.x<b.x+50&&ab.y>b.y&&ab.y<b.y+17){b.on=false;ab.vy*=-1}});if(ab.y>330){arkRun=false;document.getElementById('arkMsg').textContent='Konec hry. Zkus to znovu!'}if(bricks.every(b=>!b.on)){arkRun=false;document.getElementById('arkMsg').textContent='Vyhrál jsi!'}arkDraw();if(arkRun)arkFrame=requestAnimationFrame(arkLoop)}
+function moveArk(e){let r=ac.getBoundingClientRect();paddle=Math.max(0,Math.min(435,(e.clientX-r.left)*520/r.width-42));arkDraw()}
+ac.addEventListener('pointermove',moveArk);document.getElementById('arkStart').onclick=()=>{cancelAnimationFrame(arkFrame);arkNew();arkRun=true;document.getElementById('arkMsg').textContent='Hraješ!';arkLoop()};arkNew();arkDraw();
+</script>
+</body></html>
