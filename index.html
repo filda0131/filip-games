@@ -4,26 +4,26 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>FILIP GAMES</title>
 <style>
-:root{color-scheme:dark;--bg:#101522;--panel:#1b2638;--accent:#42d6a4;--text:#f4f7fb;--muted:#aab7c8}
+:root{color-scheme:dark;--bg:#101522;--panel:#1b2638;--accent:#42d6a4;--text:#ffffff;--muted:#ffffff}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#101522,#172b3b);color:var(--text);font:16px system-ui,Arial;min-height:100vh}
-header{text-align:center;padding:24px 12px 12px}h1{margin:0;font-size:clamp(30px,7vw,48px);letter-spacing:2px;color:var(--accent)}header p{color:var(--muted);margin:8px}
+header{text-align:center;padding:24px 12px 12px}h1{margin:0;font-size:clamp(30px,7vw,48px);letter-spacing:2px;color:#ffffff}header p{color:#ffffff;margin:8px}
 main{max-width:1000px;margin:auto;padding:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
-button{border:0;border-radius:12px;padding:12px 14px;background:var(--accent);color:#092018;font-weight:800;font-size:15px;cursor:pointer;touch-action:manipulation}
-button.secondary{background:#33445b;color:white}button:disabled{opacity:.5}
+button{border:0;border-radius:12px;padding:12px 14px;background:var(--accent);color:#ffffff;background:#26364b;border:1px solid #5d718b;font-weight:800;font-size:15px;cursor:pointer;touch-action:manipulation}
+button.secondary{background:#33445b;color:#ffffff}button:disabled{opacity:.5}
 .tile{background:var(--panel);border:1px solid #314157;border-radius:16px;padding:18px 10px;min-height:112px;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:8px}
-.tile b{font-size:17px}.tile span{font-size:28px}
+.tile b{font-size:17px;color:#ffffff}
 #game{display:none;background:var(--panel);border:1px solid #314157;border-radius:18px;padding:16px;margin-top:12px;min-height:300px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}h2{margin:6px 0 14px}#stage{padding:10px 0;text-align:center}
 canvas{background:#080d16;border-radius:12px;max-width:100%;touch-action:none}
 .big{font-size:28px;font-weight:900;margin:14px}.board{display:grid;gap:5px;justify-content:center;margin:14px auto}
 .cell{background:#34465e;color:white;min-width:42px;min-height:42px;padding:8px;border-radius:8px;font-size:20px}
-.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px}.info{color:var(--muted);margin:8px}.pad button{min-width:54px}
+.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px}.info{color:#ffffff;margin:8px}.pad button{min-width:54px}
 input{background:#0e1724;border:1px solid #52647a;color:white;border-radius:9px;padding:12px;font-size:18px;width:min(240px,90%)}
 #stage p{line-height:1.5}.tile:active,button:active{transform:scale(.98)}
 @media(max-width:480px){main{padding:9px}.tile{min-height:94px;padding:12px 6px}}
 </style></head><body>
-<header><h1>FILIP GAMES</h1><p>21 her na jednom místě 🎮</p></header>
-<main><div id="menu" class="grid"></div><section id="game"><div class="top"><button class="secondary" onclick="home()">← Zpět na hry</button><span id="score" class="info"></span></div><h2 id="title"></h2><div id="stage"></div></section></main>
+<header><h1>FILIP GAMES</h1><p>100 her na jednom místě</p></header>
+<main><div id="menu" class="grid"></div><section id="game"><div class="top"><button class="secondary" onclick="home()">← Zpět na hry</button><span id="score" class="info"></span></div><h2 id="title"></h2><div id="rules" class="info"></div><div id="stage"></div></section></main>
 <script>
 const games=[
 ['🐍','Had','snake'],['♟️','Šachy','chess'],['⭕','Piškvorky','ttt'],['🏓','Pong','pong'],['🧠','Pexeso','memory'],['🧱','Arkanoid','arkanoid'],
@@ -111,18 +111,272 @@ const games=[
 ['🏅','Závěrečná výzva','extra100']
 ];
 const menu=document.querySelector('#menu'),game=document.querySelector('#game'),stage=document.querySelector('#stage');
-games.forEach((g,i)=>{let b=document.createElement('button');b.className='tile';b.innerHTML=`<span>${g[0]}</span><b>${i+1}. ${g[1]}</b>`;b.onclick=()=>start(g[2],g[1]);menu.append(b)});
+games.forEach((g,i)=>{let b=document.createElement('button');b.className='tile';b.innerHTML=`<b>${i+1}. ${g[1]}</b>`;b.onclick=()=>start(g[2],g[1]);menu.append(b)});
 let timer=null,raf=null,score=0;
 function clean(){clearInterval(timer);cancelAnimationFrame(raf);stage.innerHTML='';document.querySelector('#score').textContent='';}
 function home(){clean();game.style.display='none';menu.style.display='grid'}
-function start(id,name){clean();menu.style.display='none';game.style.display='block';document.querySelector('#title').textContent=name;let fn=({snake,chess,ttt,pong,memory,arkanoid,rps,guess,reaction,clicker,g2048,mole,simon,connect,mines,word,typing,math,dodge,color,puzzle}[id]);if(fn)fn();else if(id.startsWith('extra'))extraGame(Number(id.slice(5)));}
+function getRules(id,name){
+ const basic={
+ snake:'Ovládej hada šipkami nebo tlačítky. Sbírej jablka, za každé získáš bod a had se prodlouží. Nenarážej do stěn ani do vlastního těla.',
+ chess:'Vyber si hru pro dva hráče, nebo proti botovi se střední či těžkou obtížností. Platí běžná šachová pravidla včetně rošády, braní mimochodem, proměny pěšce, šachu a matu.',
+ ttt:'Dva hráči střídají X a O. Klikni na volné políčko. Vyhrává ten, kdo jako první vytvoří řadu tří symbolů vodorovně, svisle nebo diagonálně.',
+ pong:'Ovládej pálku a odrážej míček zpět. Nenech míček proletět kolem své strany. Každý úspěšný odraz prodlužuje hru.',
+ memory:'Otoč vždy dvě kartičky. Hledej stejné dvojice a zapamatuj si jejich polohu. Cílem je najít všechny dvojice.',
+ arkanoid:'Ovládej spodní pálku a odrážej míček do cihel. Snaž se odstranit všechny cihly a nenech míček spadnout.',
+ rps:'Vyber kámen, nůžky nebo papír. Kámen poráží nůžky, nůžky poráží papír a papír poráží kámen.',
+ guess:'Počítač si vybere číslo. Zadej svůj tip a podle nápovědy zkus hádat vyšší nebo nižší číslo, dokud ho neuhodneš.',
+ reaction:'Počkej, až se objeví pokyn ke kliknutí, a potom co nejrychleji stiskni tlačítko. Neklikej předčasně.',
+ clicker:'Klikáním získávej body. Pokus se dosáhnout co nejvyššího skóre.',
+ g2048:'Pomocí šipek spoj stejné číselné dlaždice. Po spojení vznikne jejich součet. Cílem je vytvořit číslo 2048.',
+ mole:'Klikni na políčko, ve kterém se objeví krtek. Za každý správný zásah získáš bod.',
+ simon:'Zapamatuj si barevnou sekvenci a zopakuj ji ve stejném pořadí. V každém kole se přidá další barva.',
+ connect:'Dva hráči střídavě vhazují své žetony do sloupců. Vyhrává ten, kdo spojí čtyři žetony vodorovně, svisle nebo diagonálně.',
+ mines:'Otevírej políčka a vyhýbej se skrytým minám. Cílem je bezpečně otevřít všechna políčka bez min.',
+ word:'Hádej písmena tajného slova. Za chybné písmeno ztrácíš pokus. Vyhraj odhalením celého slova.',
+ typing:'Přečti zobrazené slovo a co nejrychleji ho přesně napiš do políčka. Potom odpověď zkontroluj.',
+ math:'Vyřeš zobrazený matematický příklad a napiš výsledek. Za správnou odpověď získáš bod.',
+ dodge:'Pohybuj se prstem nebo myší a uhýbej padajícím blokům. Snaž se vydržet co nejdéle.',
+ color:'Vyber název barvy, který je napsaný na obrazovce. Neřiď se barvou písma, ale samotným slovem.',
+ puzzle:'Posouvej sousední dílky do prázdného políčka. Seřaď čísla od 1 do 8 a nech prázdné místo vpravo dole.'
+ };
+ if(basic[id])return basic[id];
+ const n=Number(id.slice(5)),mode=(n-22)%12;
+ return [
+ 'Vyřeš zobrazený početní příklad a zadej výsledek. Tlačítkem ověř odpověď nebo si připrav nový příklad.',
+ 'Zapamatuj si zobrazenou číselnou řadu, skryj ji a napiš čísla ve stejném pořadí.',
+ 'Přečti si otázku a vyber jednu z nabízených odpovědí. Cílem je zvolit správnou možnost.',
+ 'Seřaď všechna zobrazená čísla od nejmenšího po největší a napiš je ve správném pořadí.',
+ 'Přeházená písmena slož do správného slova a napiš ho do odpovědi.',
+ 'Počkej, až se tlačítko změní na výzvu TEĎ, a co nejrychleji na něj klikni. Předčasné kliknutí se nepočítá.',
+ 'Podívej se na číselnou řadu a doplň další číslo podle stejného pravidla.',
+ 'Najdi a vyber přesně ten symbol, který je zobrazený jako hledaný.',
+ 'Porovnej dvě čísla a klikni na to větší.',
+ 'Najdi správné políčko podle zadání a klikni na něj.',
+ 'Odpověz na otázku výběrem jedné z možností. Za správnou odpověď získáš bod.',
+ 'Hádej tajné číslo od 1 do 50. Nápověda ti řekne, jestli máš zkusit větší, nebo menší číslo.'
+ ][mode];
+}
+function start(id,name){clean();menu.style.display='none';game.style.display='block';document.querySelector('#title').textContent=name;document.querySelector('#rules').textContent='PRAVIDLA: '+getRules(id,name);let fn=({snake,chess,ttt,pong,memory,arkanoid,rps,guess,reaction,clicker,g2048,mole,simon,connect,mines,word,typing,math,dodge,color,puzzle}[id]);if(fn)fn();else if(id.startsWith('extra'))extraGame(Number(id.slice(5)));}
 function setScore(s){document.querySelector('#score').textContent=s}
 function btn(txt,fn,cls=''){let b=document.createElement('button');b.textContent=txt;if(cls)b.className=cls;b.onclick=fn;return b}
 function row(...els){let d=document.createElement('div');d.className='row';els.forEach(e=>d.append(e));stage.append(d);return d}
 function para(t){let p=document.createElement('p');p.textContent=t;stage.append(p);return p}
 function rand(n){return Math.floor(Math.random()*n)}
-function snake(){stage.innerHTML='<p>Přejeď prstem po ploše nebo použij šipky. Na mobilu můžeš použít i tlačítka.</p><canvas id="c" width="320" height="320"></canvas><div class="row pad" id="pad"></div><div class="row"><button id="again">Nová hra</button></div>';let c=document.querySelector('#c'),x=c.getContext('2d'),s=16,body=[{x:8,y:8}],dir={x:1,y:0},next={...dir},food={x:4,y:5},over=false;function turn(dx,dy){if(dx!==-dir.x||dy!==-dir.y)next={x:dx,y:dy}};document.onkeydown=e=>{if(e.key==='ArrowUp')turn(0,-1);if(e.key==='ArrowDown')turn(0,1);if(e.key==='ArrowLeft')turn(-1,0);if(e.key==='ArrowRight')turn(1,0)};let sx=0,sy=0;c.ontouchstart=e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY};c.ontouchend=e=>{let dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>Math.abs(dy))turn(dx>0?1:-1,0);else turn(0,dy>0?1:-1)};[['↑',0,-1],['←',-1,0],['↓',0,1],['→',1,0]].forEach(a=>document.querySelector('#pad').append(btn(a[0],()=>turn(a[1],a[2]))));function draw(){x.fillStyle='#080d16';x.fillRect(0,0,320,320);x.fillStyle='#ffcc55';x.fillRect(food.x*s,food.y*s,s-2,s-2);body.forEach((p,i)=>{x.fillStyle=i?'#22a884':'#9cffd8';x.fillRect(p.x*s,p.y*s,s-2,s-2)})}function tick(){if(over)return;dir=next;let h={x:body[0].x+dir.x,y:body[0].y+dir.y};if(h.x<0||h.y<0||h.x>=20||h.y>=20||body.some(p=>p.x===h.x&&p.y===h.y)){over=true;setScore('Konec! Skóre '+(body.length-1));return}body.unshift(h);if(h.x===food.x&&h.y===food.y){food={x:rand(20),y:rand(20)};setScore('Skóre '+(body.length-1))}else body.pop();draw()}document.querySelector('#again').onclick=()=>snake();setScore('Skóre 0');draw();timer=setInterval(tick,125)}
-function chess(){para('Jednoduchá šachová deska pro dva hráče. Klepni na figurku a potom na cílové políčko.');let chars=['♜','♞','♝','♛','♚','♝','♞','♜'];let a=[...chars,...Array(8).fill('♟'),...Array(32).fill(''),...Array(8).fill('♙'),...'♖♘♗♕♔♗♘♖'];let sel=-1,turnn='B';let d=document.createElement('div');d.className='board';d.style.gridTemplateColumns='repeat(8,38px)';stage.append(d);function draw(){d.innerHTML='';a.forEach((v,i)=>{let b=btn(v||'·',()=>{if(sel<0&&v){sel=i}else{a[i]=a[sel];a[sel]='';sel=-1;turnn=turnn==='B'?'B':'W';}draw()},'cell');b.style.background=(Math.floor(i/8)+i%8)%2?'#60758b':'#d5dce4';b.style.color='#111';d.append(b)})}draw();para('Poznámka: tato verze je jednoduchá šachová deska pro hraní figurek, nehlídá všechna šachová pravidla.')}
+function snake(){
+ if(timer){clearInterval(timer);timer=null}
+ if(raf){cancelAnimationFrame(raf);raf=null}
+ stage.innerHTML='<p>Ovládání: šipky nebo WASD. Had přechází přes hrany a pohybuje se po všech šesti stěnách.</p><canvas id="c" width="760" height="600"></canvas><div class="row pad" id="pad"></div><div class="row"><button id="again">Nová hra</button></div>';
+ const c=document.querySelector('#c'),ctx=c.getContext('2d'),N=7,M=N-1,half=M/2;
+ const faces=[
+  {n:[0,0,1],u:[1,0,0],v:[0,1,0]},
+  {n:[0,0,-1],u:[-1,0,0],v:[0,1,0]},
+  {n:[1,0,0],u:[0,0,-1],v:[0,1,0]},
+  {n:[-1,0,0],u:[0,0,1],v:[0,1,0]},
+  {n:[0,1,0],u:[1,0,0],v:[0,0,-1]},
+  {n:[0,-1,0],u:[1,0,0],v:[0,0,1]}
+ ];
+ const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+ const add=(a,b)=>a.map((x,i)=>x+b[i]),mul=(a,k)=>a.map(x=>x*k);
+ const pos=s=>add(mul(faces[s.f].n,half+.045),add(mul(faces[s.f].u,s.u-half),mul(faces[s.f].v,s.v-half)));
+ const faceFor=n=>faces.findIndex(f=>f.n.every((x,i)=>x===n[i]));
+ const coords=(f,p)=>{const q=p.map((x,i)=>x-faces[f].n[i]*(half+.045));return {f,u:dot(q,faces[f].u)+half,v:dot(q,faces[f].v)+half}};
+ let body=[{f:0,u:2,v:3,du:1,dv:0},{f:0,u:1,v:3,du:1,dv:0},{f:0,u:0,v:3,du:1,dv:0}],food=null,over=false,points=0;
+ let spin=-.2,pitch=.10,last=0;
+ const stars=Array.from({length:170},()=>({x:Math.random()*760,y:Math.random()*600,r:Math.random()*1.2+.25,a:Math.random()*.6+.18}));
+ function setDir(du,dv){const h=body[0];if(du===-h.du&&dv===-h.dv)return;h.want={du,dv}}
+ function nextCell(s){
+   const f=faces[s.f],u=s.u+s.du,v=s.v+s.dv;
+   if(u>=0&&u<N&&v>=0&&v<N)return {...s,u,v,want:null};
+   const step=add(mul(f.u,s.du),mul(f.v,s.dv));
+   const nf=faceFor(step);
+   // Přechod přes hranu na sousední stěnu krychle.
+   const q=coords(nf,pos(s)),heading=mul(f.n,-1);
+   return {f:nf,u:Math.max(0,Math.min(M,Math.round(q.u))),v:Math.max(0,Math.min(M,Math.round(q.v))),
+     du:dot(heading,faces[nf].u),dv:dot(heading,faces[nf].v),want:null};
+ }
+ function placeFood(){do{food={f:rand(6),u:rand(N),v:rand(N)}}while(body.some(s=>{const a=pos(s),b=pos(food);return a.every((x,i)=>Math.abs(x-b[i])<.01)}))}
+ placeFood();
+ // Kamera se dívá shora; krychle se otáčí kolem osy pohledu jako ve videu.
+ function rotate(p){
+   const ca=Math.cos(spin),sa=Math.sin(spin),cp=Math.cos(pitch),sp=Math.sin(pitch);
+   const x=p[0]*ca-p[1]*sa,y=p[0]*sa+p[1]*ca,z=p[2];
+   return [x,y*cp-z*sp,y*sp+z*cp];
+ }
+ function project(p){const q=rotate(p),k=39;return {x:380+q[0]*k,y:300-q[1]*k,z:q[2]}}
+ function polygon(points,fill,stroke='rgba(75,255,210,.48)'){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=1.25;ctx.stroke()}
+ function facePoint(f,u,v,offset=0){const b=faces[f];return add(mul(b.n,half+offset),add(mul(b.u,u-half),mul(b.v,v-half)))}
+ function drawFace(f){
+   const corners=[facePoint(f,-.5,-.5),facePoint(f,N-.5,-.5),facePoint(f,N-.5,N-.5),facePoint(f,-.5,N-.5)].map(project);
+   polygon(corners,'rgba(8,24,31,.38)','rgba(75,255,210,.58)');
+   ctx.strokeStyle='rgba(75,190,180,.22)';ctx.lineWidth=1;
+   for(let i=0;i<=N;i++){
+     let a=project(facePoint(f,i-.5,-.5,.01)),b=project(facePoint(f,i-.5,N-.5,.01));
+     ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+     a=project(facePoint(f,-.5,i-.5,.01));b=project(facePoint(f,N-.5,i-.5,.01));
+     ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+   }
+ }
+ function drawPiece(s,color,glow,size=.34){
+   const f=faces[s.f],p=facePoint(s.f,s.u,s.v,.075);
+   const corners=[add(p,add(mul(f.u,-size),mul(f.v,-size))),add(p,add(mul(f.u,size),mul(f.v,-size))),add(p,add(mul(f.u,size),mul(f.v,size))),add(p,add(mul(f.u,-size),mul(f.v,size)))].map(project);
+   ctx.save();ctx.shadowColor=glow;ctx.shadowBlur=18;polygon(corners,color,'rgba(220,255,255,.25)');ctx.restore();
+ }
+ function draw(){
+   ctx.clearRect(0,0,760,600);ctx.fillStyle='#020509';ctx.fillRect(0,0,760,600);
+   stars.forEach(s=>{ctx.globalAlpha=s.a;ctx.fillStyle='#b9d8df';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill()});ctx.globalAlpha=1;
+   faces.map((f,i)=>({i,z:project(mul(f.n,half)).z})).sort((a,b)=>a.z-b.z).forEach(o=>drawFace(o.i));
+   drawPiece(food,'#ff32cb','#ff13cf',.32);
+   body.slice().reverse().forEach((s,i)=>drawPiece(s,i===body.length-1?'#70ffe2':'#20e8b5','#00ffc8',.34));
+   const h=project(facePoint(body[0].f,body[0].u,body[0].v,.1));ctx.save();ctx.shadowColor='#00ffc8';ctx.shadowBlur=12;ctx.fillStyle='#063c36';ctx.beginPath();ctx.arc(h.x-4,h.y-3,2.3,0,7);ctx.arc(h.x+4,h.y-3,2.3,0,7);ctx.fill();ctx.restore();
+   ctx.fillStyle='#fff';ctx.font='bold 22px system-ui';ctx.fillText('3D HAD',22,34);ctx.textAlign='right';ctx.fillText('Skóre: '+points,738,34);ctx.textAlign='left';
+   spin+=.0025;
+ }
+ document.onkeydown=e=>{const k=e.key.toLowerCase();if(['arrowleft','arrowright','arrowup','arrowdown','w','a','s','d'].includes(k))e.preventDefault();if(k==='arrowleft'||k==='a')setDir(-1,0);if(k==='arrowright'||k==='d')setDir(1,0);if(k==='arrowup'||k==='w')setDir(0,-1);if(k==='arrowdown'||k==='s')setDir(0,1)};
+ [['←',-1,0],['→',1,0],['↑',0,-1],['↓',0,1]].forEach(a=>document.querySelector('#pad').append(btn(a[0],()=>setDir(a[1],a[2]))));
+ function tick(){
+   if(over)return;const h=body[0],d=h.want||{du:h.du,dv:h.dv};const next=nextCell({...h,du:d.du,dv:d.dv}),np=pos(next);
+   if(body.slice(0,-1).some(s=>pos(s).every((x,i)=>Math.abs(x-np[i])<.01))){over=true;setScore('Konec hry! Body: '+points);para('Konec hry! Klikni na Nová hra a zkus to znovu.');return}
+   body.unshift(next);
+   if(pos(food).every((x,i)=>Math.abs(x-np[i])<.01)){points++;placeFood();setScore('Skóre: '+points)}else body.pop();
+ }
+ function animate(t){if(!document.querySelector('#c'))return;if(t-last>280){tick();last=t}draw();raf=requestAnimationFrame(animate)}
+ document.querySelector('#again').onclick=()=>snake();
+ setScore('Skóre: 0');animate(0);
+}
+async function chess(){
+ stage.innerHTML='<p>Vyber si, jak chceš hrát:</p>';
+ row(
+   btn('Dva hráči na jednom zařízení',()=>launch('two')),
+   btn('Proti botovi – střední',()=>launch('medium')),
+   btn('Proti botovi – těžký',()=>launch('hard'))
+ );
+ async function launch(mode){
+   stage.innerHTML='<p>Načítám šachová pravidla…</p>';
+   let Chess;
+   try{
+     ({Chess}=await import('https://cdn.jsdelivr.net/npm/chess.js@1.4.0/dist/esm/chess.js'));
+   }catch(e){
+     stage.innerHTML='';
+     para('Šachy potřebují připojení k internetu, aby se načetla pravidla. Obnov stránku a zkus to znovu.');
+     row(btn('Zkusit znovu',()=>launch(mode)));
+     return;
+   }
+   stage.innerHTML='';
+   const game=new Chess();
+   const symbols={wp:'♙',wn:'♘',wb:'♗',wr:'♖',wq:'♕',wk:'♔',bp:'♟',bn:'♞',bb:'♝',br:'♜',bq:'♛',bk:'♚'};
+   let selected=null,legal=[],thinking=false,lastMove='';
+   const status=para('');
+   para(mode==='two'?'Režim: dva hráči':'Režim: proti botovi ('+(mode==='medium'?'střední obtížnost':'těžká obtížnost')+'). Ty hraješ bílými.');
+   const board=document.createElement('div');
+   board.className='board';board.style.gridTemplateColumns='repeat(8,minmax(0,1fr))';
+   board.style.width='min(100%,440px)';board.style.gap='2px';stage.append(board);
+   const history=para('');
+   row(btn('Nová partie',()=>launch(mode)),btn('Změnit režim',()=>chess(),'secondary'));
+   function moveSpec(m){const o={from:m.from,to:m.to};if(m.promotion)o.promotion=m.promotion;return o}
+   function statusText(){
+     if(game.isCheckmate())return 'MAT! Vyhrál '+(game.turn()==='w'?'černý':'bílý')+'.';
+     if(game.isGameOver())return 'Remíza.';
+     let t='Na tahu: '+(game.turn()==='w'?'bílý':'černý');
+     if(game.isCheck())t+=' — ŠACH!';
+     if(thinking)t='Bot přemýšlí…';
+     return t;
+   }
+   function finishInfo(){
+     status.textContent=statusText();
+     const hist=game.history();
+     history.textContent=(lastMove?'Poslední tah: '+lastMove+' · ':'')+
+       (hist.length?'Počet tahů: '+hist.length:'Začátek partie');
+     setScore(game.isGameOver()?'Partie skončila':'');
+   }
+   function draw(){
+     board.innerHTML='';
+     const arr=game.board();
+     for(let r=0;r<8;r++)for(let f=0;f<8;f++){
+       const sq='abcdefgh'[f]+(8-r),piece=arr[r][f];
+       const b=btn(piece?symbols[piece.color+piece.type]:' ',()=>tap(sq,piece),'cell');
+       b.style.minWidth='0';b.style.minHeight='0';b.style.width='100%';b.style.aspectRatio='1';
+       b.style.padding='0';b.style.margin='0';b.style.borderRadius='3px';
+       b.style.fontSize='clamp(23px,5.4vw,39px)';b.style.lineHeight='1';
+       b.style.background=((r+f)%2===0)?'#d8e0e8':'#62758b';
+       b.style.color=piece?(piece.color==='w'?'#fff':'#101820'):'transparent';
+       b.style.textShadow=piece&&piece.color==='w'?'0 1px 3px #182333':'none';
+       if(selected===sq)b.style.background='#d2a72d';
+       else if(legal.some(m=>m.to===sq))b.style.background=piece?'#bd786e':'#62a987';
+       if(piece&&piece.color==='b')b.style.textShadow='0 1px 1px #fff7';
+       board.append(b);
+     }
+     finishInfo();
+   }
+   function tap(square,piece){
+     if(thinking||game.isGameOver())return;
+     if(mode!=='two'&&game.turn()==='b')return;
+     if(selected){
+       const candidate=legal.find(m=>m.to===square);
+       if(candidate){
+         try{
+           const m=game.move(moveSpec(candidate));
+           lastMove=m.san;selected=null;legal=[];draw();
+           if(mode!=='two'&&!game.isGameOver()){
+             thinking=true;draw();
+             timer=setTimeout(()=>{timer=null;botMove()},120);
+           }
+           return;
+         }catch(e){}
+       }
+     }
+     if(piece&&piece.color===game.turn()){
+       selected=square;legal=game.moves({square,verbose:true});draw();
+     }else{selected=null;legal=[];draw()}
+   }
+   const values={p:100,n:320,b:335,r:500,q:900,k:20000};
+   function evaluate(){
+     let score=0;const a=game.board();
+     for(let r=0;r<8;r++)for(let f=0;f<8;f++){
+       const p=a[r][f];if(!p)continue;
+       const sign=p.color==='w'?1:-1;
+       const center=7-Math.abs(3.5-f)-Math.abs(3.5-r);
+       let bonus=0;
+       if(p.type==='n'||p.type==='b')bonus=center*5;
+       if(p.type==='p')bonus=(p.color==='w'?(6-r):(r-1))*5+center*2;
+       if(p.type==='q')bonus=center*2;
+       score+=sign*(values[p.type]+bonus);
+     }
+     return score;
+   }
+   function search(depth,alpha,beta,ply){
+     if(game.isCheckmate())return game.turn()==='w'?-100000+ply:100000-ply;
+     if(game.isGameOver())return 0;
+     if(depth<=0)return evaluate();
+     const side=game.turn(),moves=game.moves({verbose:true});
+     moves.sort((a,b)=>(b.captured?(values[b.captured]||0):0)-(a.captured?(values[a.captured]||0):0));
+     let best=side==='w'?-Infinity:Infinity;
+     for(const m of moves){
+       game.move(moveSpec(m));const val=search(depth-1,alpha,beta,ply+1);game.undo();
+       if(side==='w'){if(val>best)best=val;if(best>alpha)alpha=best}
+       else{if(val<best)best=val;if(best<beta)beta=best}
+       if(beta<=alpha)break;
+     }
+     return best;
+   }
+   function botMove(){
+     if(!document.body.contains(board)||game.isGameOver()){thinking=false;finishInfo();return}
+     const moves=game.moves({verbose:true});
+     if(!moves.length){thinking=false;draw();return}
+     const depth=mode==='hard'?3:2;
+     moves.sort((a,b)=>(b.captured?(values[b.captured]||0):0)-(a.captured?(values[a.captured]||0):0));
+     let bestScore=Infinity,bestMoves=[];
+     for(const m of moves){
+       game.move(moveSpec(m));const value=search(depth-1,-Infinity,Infinity,1);game.undo();
+       if(value<bestScore){bestScore=value;bestMoves=[m]}
+       else if(value===bestScore)bestMoves.push(m);
+     }
+     const chosen=bestMoves[rand(bestMoves.length)]||moves[0];
+     const played=game.move(moveSpec(chosen));
+     lastMove=played.san;thinking=false;selected=null;legal=[];draw();
+   }
+   draw();
+ }
+}
 function ttt(){let a=Array(9).fill(''),p='X';let d=document.createElement('div');d.className='board';d.style.gridTemplateColumns='repeat(3,80px)';stage.append(d);function draw(){d.innerHTML='';a.forEach((v,i)=>d.append(btn(v||' ',()=>{if(!v&&!winner()){a[i]=p;p=p==='X'?'O':'X';draw()}},'cell')));setScore(winner()||('Na tahu '+p))}function winner(){for(let q of [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]])if(a[q[0]]&&a[q[0]]===a[q[1]]&&a[q[1]]===a[q[2]])return a[q[0]]+' vyhrál!';return a.every(Boolean)?'Remíza!':''}row(btn('Nová hra',()=>{a.fill('');p='X';draw()}));draw()}
 function memory(){let vals=['🍎','🍌','🍇','🍒','🍉','🥝','🍋','🍓'];let a=[...vals,...vals].sort(()=>Math.random()-.5),open=[],done=0,d=document.createElement('div');d.className='board';d.style.gridTemplateColumns='repeat(4,64px)';stage.append(d);function draw(){d.innerHTML='';a.forEach((v,i)=>d.append(btn(open.includes(i)||a[i]==null?v:'❔',()=>{if(open.length<2&&!open.includes(i)&&a[i]!=null){open.push(i);draw();if(open.length===2)timer=setTimeout(()=>{if(a[open[0]]===a[open[1]]){a[open[0]]=a[open[1]]=null;done+=2}open=[];setScore('Nalezeno '+done+'/16');draw()},650)}},'cell')))}setScore('Nalezeno 0/16');draw()}
 function pong(){stage.innerHTML='<canvas id="c" width="320" height="240"></canvas><p>Pohybuj prstem/myší a odrážej míček. Hraješ proti jednoduchému soupeři.</p>';let c=document.querySelector('#c'),x=c.getContext('2d'),py=100,by=120,bx=160,vx=3,vy=2,ay=100,sc=0;c.onpointermove=e=>py=(e.clientY-c.getBoundingClientRect().top)*240/c.clientHeight;function tick(){x.fillStyle='#080d16';x.fillRect(0,0,320,240);x.fillStyle='#fff';x.fillRect(8,py-25,7,50);ay+=((by-ay)-25)*.04;x.fillRect(305,ay,7,50);x.beginPath();x.arc(bx,by,7,0,7);x.fill();bx+=vx;by+=vy;if(by<7||by>233)vy=-vy;if(bx<20&&by>py-25&&by<py+25)vx=Math.abs(vx);if(bx>300&&by>ay&&by<ay+50)vx=-Math.abs(vx);if(bx<0||bx>320){if(bx<0)sc++;bx=160;by=120;vx=bx<0?3:-3;setScore('Body: '+sc)}raf=requestAnimationFrame(tick)}tick()}
